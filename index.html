@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deli's Job Tracker</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #000000;
+      --bg1:      #0a0a0a;
+      --bg2:      #111111;
+      --bg3:      #1a1a1a;
+      --border:   #222222;
+      --border2:  #2a2a2a;
+      --text:     #f0f0f0;
+      --muted:    #666666;
+      --muted2:   #444444;
+
+      --green:    #00ff88;
+      --green-d:  #00cc6a;
+      --green-glow: 0 0 12px rgba(0,255,136,0.4);
+      --green-glow2: 0 0 24px rgba(0,255,136,0.2);
+
+      --purple:   #bf00ff;
+      --purple-d: #9900cc;
+      --purple-glow: 0 0 12px rgba(191,0,255,0.5);
+
+      --cyan:     #00e5ff;
+      --cyan-glow: 0 0 12px rgba(0,229,255,0.45);
+
+      --pink:     #ff0080;
+      --pink-glow: 0 0 12px rgba(255,0,128,0.45);
+
+      --yellow:   #ffee00;
+      --yellow-glow: 0 0 12px rgba(255,238,0,0.4);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg1); }
+    ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+
+    /* ── LAYOUT ── */
+    .wrap { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── HEADER ── */
+    .hdr {
+      background: var(--bg1);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .hdr-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+    .logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px; font-weight: 600;
+      color: var(--green);
+      text-shadow: var(--green-glow);
+      white-space: nowrap;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--text); opacity: 0.5; }
+
+    .greeting {
+      font-size: 11px; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.5px;
+    }
+    .greeting em { color: var(--green); font-style: normal; }
+
+    .nav { display: flex; gap: 2px; background: var(--bg2); padding: 3px; border-radius: 8px; border: 1px solid var(--border); flex-wrap: wrap; }
+    .nav-btn {
+      padding: 6px 13px; border-radius: 6px; border: none;
+      background: transparent; color: var(--muted);
+      font-size: 12px; font-weight: 500; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .nav-btn:hover { color: var(--text); background: var(--bg3); }
+    .nav-btn.active {
+      background: var(--bg3);
+      color: var(--green);
+      box-shadow: inset 0 0 0 1px rgba(0,255,136,0.25), var(--green-glow2);
+    }
+    .fu-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--pink); color: #000;
+      font-size: 9px; font-weight: 700; margin-left: 4px;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      padding: 8px 16px; border-radius: 7px; border: none;
+      font-size: 12.5px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'Space Grotesk', sans-serif; line-height: 1;
+    }
+    .btn-primary {
+      background: transparent;
+      color: var(--green);
+      border: 1px solid rgba(0,255,136,0.4);
+      box-shadow: var(--green-glow2);
+    }
+    .btn-primary:hover {
+      background: rgba(0,255,136,0.08);
+      box-shadow: var(--green-glow);
+      border-color: var(--green);
+    }
+    .btn-secondary { background: var(--bg3); color: var(--muted); border: 1px solid var(--border2); }
+    .btn-secondary:hover { color: var(--text); border-color: var(--muted2); }
+    .btn-danger { background: transparent; color: var(--pink); border: 1px solid rgba(255,0,128,0.25); }
+    .btn-danger:hover { background: rgba(255,0,128,0.08); box-shadow: var(--pink-glow); }
+    .btn-sm { padding: 5px 11px; font-size: 12px; border-radius: 6px; }
+    .btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 5px; }
+
+    /* ── MAIN ── */
+    .main { padding: 22px 0 48px; }
+
+    /* ── STAT GRID ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(138px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .stat-card {
+      background: var(--bg1);
+      border-radius: 10px; padding: 16px;
+      border: 1px solid var(--border);
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: var(--border2); }
+    .stat-lbl { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; }
+    .stat-val { font-size: 26px; font-weight: 700; line-height: 1; margin-bottom: 3px; font-family: 'JetBrains Mono', monospace; }
+    .stat-sub { font-size: 10.5px; color: var(--muted); }
+
+    /* ── CARD ── */
+    .card { background: var(--bg1); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 14px; }
+    .card-hdr { padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+    .card-hdr h2 { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .card-hdr.clickable { cursor: pointer; user-select: none; }
+    .card-hdr.clickable:hover h2 { color: var(--green); }
+    .card-body { padding: 18px; }
+
+    /* ── PIPELINE ── */
+    .pipe-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+    .pipe-item { min-width: 120px; flex: 1; }
+    .pipe-lbl { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); margin-bottom: 5px; }
+    .pipe-lbl .fw { font-weight: 600; color: var(--text); }
+    .prog-bar { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+
+    /* ── TABLE ── */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    thead th {
+      padding: 9px 12px; text-align: left;
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      white-space: nowrap; cursor: pointer; user-select: none;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    thead th:hover { color: var(--green); }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr:hover { background: var(--bg2); }
+    tbody td { padding: 10px 12px; color: var(--text); vertical-align: middle; }
+    .co-name { font-weight: 700; font-size: 13px; }
+    .ref-tag { font-size: 10px; color: var(--green); margin-top: 2px; }
+    .silent-ok { color: var(--muted); }
+    .silent-warn { color: var(--yellow); font-weight: 600; }
+    .silent-urgent { color: var(--pink); font-weight: 700; text-shadow: var(--pink-glow); }
+
+    /* ── BADGES ── */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 8px; border-radius: 20px;
+      font-size: 10px; font-weight: 700; white-space: nowrap;
+      line-height: 1.5; border: 1px solid transparent;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .b-green  { color: var(--green);  border-color: rgba(0,255,136,0.3); background: rgba(0,255,136,0.07); }
+    .b-yellow { color: var(--yellow); border-color: rgba(255,238,0,0.3); background: rgba(255,238,0,0.07); }
+    .b-red    { color: var(--pink);   border-color: rgba(255,0,128,0.3); background: rgba(255,0,128,0.07); }
+    .b-blue   { color: var(--cyan);   border-color: rgba(0,229,255,0.3); background: rgba(0,229,255,0.07); }
+    .b-purple { color: var(--purple); border-color: rgba(191,0,255,0.3); background: rgba(191,0,255,0.07); }
+    .b-gray   { color: var(--muted);  border-color: var(--border2); background: var(--bg2); }
+    .b-orange { color: #ff8800;       border-color: rgba(255,136,0,0.3); background: rgba(255,136,0,0.07); }
+    .b-fu     { color: var(--pink);   border-color: rgba(255,0,128,0.4); background: rgba(255,0,128,0.1); text-shadow: var(--pink-glow); animation: pulse 2s infinite; }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
+    /* ── SCORE DOTS ── */
+    .dots { display: flex; gap: 3px; align-items: center; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot-on  { background: var(--green); box-shadow: 0 0 5px rgba(0,255,136,0.6); }
+    .dot-off { background: var(--bg3); border: 1px solid var(--border2); }
+
+    /* ── FILTER BAR ── */
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    .filter-bar input, .filter-bar select {
+      padding: 7px 11px; border: 1px solid var(--border);
+      border-radius: 7px; font-size: 12px; color: var(--text);
+      background: var(--bg1); outline: none; font-family: 'Space Grotesk', sans-serif;
+    }
+    .filter-bar input:focus, .filter-bar select:focus {
+      border-color: rgba(0,255,136,0.4);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.06);
+    }
+    .filter-bar select option { background: var(--bg2); }
+
+    /* ── MODAL ── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(4px);
+      z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal {
+      background: var(--bg1); border-radius: 14px;
+      width: 100%; max-width: 720px; max-height: 92vh; overflow-y: auto;
+      border: 1px solid var(--border2);
+      box-shadow: 0 0 60px rgba(0,255,136,0.06), 0 24px 64px rgba(0,0,0,0.8);
+    }
+    .modal-hdr {
+      padding: 16px 22px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; background: var(--bg1); z-index: 1;
+    }
+    .modal-hdr h2 { font-size: 15px; font-weight: 700; color: var(--green); text-shadow: var(--green-glow2); }
+    .modal-body { padding: 22px; }
+
+    /* ── FORMS ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .fg { display: flex; flex-direction: column; gap: 5px; }
+    .fg.full { grid-column: 1 / -1; }
+    label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-family: 'JetBrains Mono', monospace; }
+    input[type=text], input[type=number], input[type=date], select, textarea {
+      padding: 8px 11px; border: 1px solid var(--border);
+      border-radius: 7px; font-size: 12.5px; color: var(--text);
+      background: var(--bg2); outline: none; transition: all 0.15s;
+      font-family: 'Space Grotesk', sans-serif; width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(0,255,136,0.4);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.06);
+    }
+    select option { background: var(--bg2); }
+    textarea { resize: vertical; min-height: 68px; }
+    input[type=checkbox] { accent-color: var(--green); width: 14px; height: 14px; cursor: pointer; }
+    .check-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); cursor: pointer; font-weight: 500; }
+    .score-btns { display: flex; gap: 5px; padding-top: 2px; }
+    .score-btn {
+      width: 30px; height: 30px; border-radius: 6px;
+      border: 1px solid var(--border2); background: var(--bg2);
+      color: var(--muted); font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.12s;
+    }
+    .score-btn.on {
+      border-color: var(--green); background: rgba(0,255,136,0.1);
+      color: var(--green); box-shadow: var(--green-glow2);
+    }
+    .form-section-title {
+      font-size: 10px; font-weight: 700; color: var(--green);
+      text-transform: uppercase; letter-spacing: 1px;
+      grid-column: 1/-1; margin-top: 6px; padding-bottom: 6px;
+      border-bottom: 1px solid rgba(0,255,136,0.15);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── FOLLOW-UP ── */
+    .fu-card { border: 1px solid var(--border); border-radius: 9px; padding: 13px; margin-bottom: 9px; background: var(--bg2); }
+    .fu-card.urgent { border-color: rgba(255,0,128,0.35); background: rgba(255,0,128,0.04); }
+    .fu-card.warm   { border-color: rgba(255,238,0,0.3); background: rgba(255,238,0,0.03); }
+    .tmpl-block {
+      background: var(--bg);
+      border-left: 2px solid var(--green);
+      border-radius: 0 7px 7px 0; padding: 12px 14px;
+      font-size: 11px; line-height: 1.7; color: var(--muted);
+      white-space: pre-wrap; margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── INSIGHTS ── */
+    .insight-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+    .insight-row:last-child { border-bottom: none; }
+    .rec-card { padding: 14px 16px; background: var(--bg2); border-radius: 9px; border-left: 2px solid var(--green); margin-bottom: 11px; }
+    .rec-q { font-weight: 700; font-size: 12.5px; color: var(--text); margin-bottom: 5px; }
+    .rec-a { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+    /* ── OFFER ── */
+    .offer-summary {
+      display: flex; gap: 20px; flex-wrap: wrap; margin-top: 14px;
+      padding: 16px; background: var(--bg2); border-radius: 10px;
+      border: 1px solid rgba(0,255,136,0.2);
+      box-shadow: 0 0 30px rgba(0,255,136,0.04);
+    }
+    .offer-num { display: flex; flex-direction: column; gap: 4px; }
+    .offer-lbl { font-size: 9.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; font-family: 'JetBrains Mono', monospace; }
+    .offer-val { font-size: 20px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+    /* ── COLLAPSIBLE ── */
+    .chev { display: inline-block; transition: transform 0.2s; color: var(--muted); font-size: 13px; }
+    .chev.open { transform: rotate(180deg); }
+
+    /* ── SECTION LABEL ── */
+    .section-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 11px; font-family: 'JetBrains Mono', monospace; }
+
+    /* ── MISC ── */
+    .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .text-muted { color: var(--muted); }
+    .text-sm { font-size: 12px; }
+    .fw6 { font-weight: 600; }
+    .fw7 { font-weight: 700; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .mt16 { margin-top: 16px; }
+    .mb12 { margin-bottom: 12px; }
+
+    .alert-banner {
+      padding: 10px 15px; border-radius: 9px; font-size: 12.5px;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 13px;
+    }
+    .alert-pink { background: rgba(255,0,128,0.07); border: 1px solid rgba(255,0,128,0.3); color: #ff80b5; }
+    .alert-green { background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.25); color: var(--green); }
+
+    /* ── GLOW DIVIDER ── */
+    .glow-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,255,136,0.4), transparent);
+      margin: 20px 0;
+    }
+
+    /* ── SCANLINE EFFECT (subtle) ── */
+    .hdr::after {
+      content: '';
+      position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--green) 50%, transparent 100%);
+      opacity: 0.3;
+    }
+
+    @media (max-width: 800px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .stat-grid { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const{useState:useState,useMemo:useMemo}=React,STATUS_OPTS=["Applied","Recruiter Screen","Interview 1","Interview 2","Final Round","Offer","Rejected","Closed"],LEVERAGE_OPTS=["Low","Medium","High"],RISK_OPTS=["Stable Role","Layoff Risk","AI Risk"],LOC_OPTS=["Remote","Hybrid","Onsite"],CONTACT_ROLES=["Recruiter","Hiring Manager","HR","Other"],ACTIVE=["Applied","Recruiter Screen","Interview 1","Interview 2","Final Round","Offer"],INTERVIEW=["Interview 1","Interview 2","Final Round","Offer"],SS={Applied:{b:"b-gray",dot:"🟡"},"Recruiter Screen":{b:"b-yellow",dot:"🟢"},"Interview 1":{b:"b-green",dot:"🟢"},"Interview 2":{b:"b-green",dot:"🟢"},"Final Round":{b:"b-purple",dot:"🔵"},Offer:{b:"b-blue",dot:"🔵"},Rejected:{b:"b-red",dot:"🔴"},Closed:{b:"b-gray",dot:"🔴"}},TODAY=new Date("2026-03-01"),SEED=[],dBetween=(e,t=TODAY)=>e?Math.max(0,Math.floor((t-new Date(e))/864e5)):0,fDate=e=>e?new Date(e).toLocaleDateString("en-US",{month:"short",day:"numeric"}):"—",fSal=(e,t)=>{if(!e&&!t)return"—";const a=e=>e>=1e3?`$${Math.round(e/1e3)}k`:`$${e}`;return e&&t?`${a(e)}–${a(t)}`:a(e||t)},Dots=({v:e,max:t=5})=>React.createElement("div",{className:"dots"},Array.from({length:t}).map((t,a)=>React.createElement("div",{key:a,className:"dot "+(a<e?"dot-on":"dot-off")}))),SBadge=({status:e})=>{const t=SS[e]||{};return React.createElement("span",{className:`badge ${t.b||"b-gray"}`},t.dot," ",e)},Dashboard=({apps:e})=>{const t=useMemo(()=>{const t=e.length,a=e.filter(e=>ACTIVE.includes(e.status)).length,l=e.filter(e=>INTERVIEW.includes(e.status)).length,n=e.filter(e=>"Final Round"===e.status).length,c=e.filter(e=>"Offer"===e.status).length,r=e.filter(e=>"Rejected"===e.status).length,s=e.filter(e=>ACTIVE.includes(e.status)&&dBetween(e.lastContactDate)>14).length,o=t?Math.round(e.reduce((e,t)=>e+dBetween(t.dateApplied),0)/t):0;return{total:t,active:a,interviews:l,final:n,offers:c,rej:r,stalled:s,avgDays:o,conv:t?Math.round(l/t*100):0}},[e]),a=[{lbl:"TOTAL APPLIED",val:t.total,color:"#00ff88",glow:"0 0 12px rgba(0,255,136,0.4)",sub:"applications sent"},{lbl:"ACTIVE PIPELINE",val:t.active,color:"#00e5ff",glow:"0 0 12px rgba(0,229,255,0.4)",sub:"🟢 in progress"},{lbl:"INTERVIEWS",val:t.interviews,color:"#00ff88",glow:"0 0 12px rgba(0,255,136,0.4)",sub:"scheduled / done"},{lbl:"FINAL ROUNDS",val:t.final,color:"#bf00ff",glow:"0 0 12px rgba(191,0,255,0.5)",sub:"🔵 almost there"},{lbl:"OFFERS",val:t.offers,color:"#00e5ff",glow:"0 0 12px rgba(0,229,255,0.4)",sub:"💰 received"},{lbl:"REJECTIONS",val:t.rej,color:"#ff0080",glow:"0 0 12px rgba(255,0,128,0.4)",sub:"🔴 closed out"},{lbl:"NEED FOLLOW-UP",val:t.stalled,color:"#ff8800",glow:"0 0 12px rgba(255,136,0,0.4)",sub:">14 days silent"},{lbl:"AVG DAYS ACTIVE",val:t.avgDays,color:"#666666",glow:"none",sub:"in pipeline"},{lbl:"CONV. RATE",val:`${t.conv}%`,color:"#00ff88",glow:"0 0 12px rgba(0,255,136,0.4)",sub:"App → Interview"}];return React.createElement("div",null,React.createElement("div",{className:"stat-grid"},a.map((e,t)=>React.createElement("div",{key:t,className:"stat-card"},React.createElement("div",{className:"stat-lbl"},e.lbl),React.createElement("div",{className:"stat-val mono",style:{color:e.color,textShadow:e.glow}},e.val),React.createElement("div",{className:"stat-sub"},e.sub)))),React.createElement("div",{className:"card"},React.createElement("div",{className:"card-hdr"},React.createElement("h2",null,"⚡ PIPELINE BREAKDOWN")),React.createElement("div",{className:"card-body"},React.createElement("div",{className:"pipe-grid"},STATUS_OPTS.slice(0,-1).map(a=>{const l=e.filter(e=>e.status===a).length,n=t.total?Math.round(l/t.total*100):0,c="Final Round"===a||"Offer"===a?"var(--purple)":"Rejected"===a?"var(--pink)":INTERVIEW.includes(a)?"var(--green)":"var(--muted2)";return React.createElement("div",{key:a,className:"pipe-item"},React.createElement("div",{className:"pipe-lbl"},React.createElement("span",null,SS[a]?.dot," ",a),React.createElement("span",{className:"fw"},l)),React.createElement("div",{className:"prog-bar"},React.createElement("div",{className:"prog-fill",style:{width:`${n}%`,background:c,boxShadow:l>0?`0 0 6px ${c}40`:""}})))})))),t.stalled>0&&React.createElement("div",{className:"alert-banner alert-pink"},React.createElement("span",{style:{fontSize:18}},"⚡"),React.createElement("span",null,React.createElement("strong",null,t.stalled," application",t.stalled>1?"s":"")," ha",t.stalled>1?"ve":"s"," been silent 14+ days. Check the ",React.createElement("strong",null,"Follow-Up")," tab.")))},BLANK={company:"",role:"",locationType:"Remote",city:"",salaryMin:"",salaryMax:"",dateApplied:"2026-03-01",hasReferral:!1,referralName:"",keyContact:"",contactRole:"Recruiter",status:"Applied",lastContactDate:"2026-03-01",followUpCount:0,strategicValue:3,compensationPotential:3,culturalAlignment:3,leverage:"Medium",notes:"",negotiationPrepReady:!1,relocationRequired:!1,riskLevel:"Stable Role"},AppModal=({app:e,onSave:t,onClose:a})=>{const[l,n]=useState(e?{...e}:{...BLANK}),c=(e,t)=>n(a=>({...a,[e]:t})),r=({label:e,field:t})=>React.createElement("div",{className:"fg"},React.createElement("label",null,e," ",React.createElement("span",{style:{color:"var(--green)",opacity:.7}},"(",l[t],"/5)")),React.createElement("div",{className:"score-btns"},[1,2,3,4,5].map(e=>React.createElement("button",{key:e,className:"score-btn "+(l[t]>=e?"on":""),onClick:()=>c(t,e)},e))));return React.createElement("div",{className:"overlay",onClick:e=>e.target===e.currentTarget&&a()},React.createElement("div",{className:"modal"},React.createElement("div",{className:"modal-hdr"},React.createElement("h2",null,e?"✏️ EDIT APPLICATION":"➕ NEW APPLICATION"),React.createElement("button",{className:"btn btn-secondary btn-sm",onClick:a},"✕")),React.createElement("div",{className:"modal-body"},React.createElement("div",{className:"form-grid"},React.createElement("div",{className:"form-section-title"},"// BASIC INFO"),React.createElement("div",{className:"fg"},React.createElement("label",null,"Company *"),React.createElement("input",{value:l.company,onChange:e=>c("company",e.target.value),placeholder:"e.g. Stripe"})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Role *"),React.createElement("input",{value:l.role,onChange:e=>c("role",e.target.value),placeholder:"e.g. Senior Data Analyst"})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Location Type"),React.createElement("select",{value:l.locationType,onChange:e=>c("locationType",e.target.value)},LOC_OPTS.map(e=>React.createElement("option",{key:e},e)))),React.createElement("div",{className:"fg"},React.createElement("label",null,"City"),React.createElement("input",{value:l.city,onChange:e=>c("city",e.target.value),placeholder:"e.g. San Francisco, CA"})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Salary Min ($)"),React.createElement("input",{type:"number",value:l.salaryMin,onChange:e=>c("salaryMin",e.target.value),placeholder:"120000"})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Salary Max ($)"),React.createElement("input",{type:"number",value:l.salaryMax,onChange:e=>c("salaryMax",e.target.value),placeholder:"150000"})),React.createElement("div",{className:"form-section-title"},"// STATUS & TIMELINE"),React.createElement("div",{className:"fg"},React.createElement("label",null,"Date Applied"),React.createElement("input",{type:"date",value:l.dateApplied,onChange:e=>c("dateApplied",e.target.value)})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Status"),React.createElement("select",{value:l.status,onChange:e=>c("status",e.target.value)},STATUS_OPTS.map(e=>React.createElement("option",{key:e},e)))),React.createElement("div",{className:"fg"},React.createElement("label",null,"Last Contact Date"),React.createElement("input",{type:"date",value:l.lastContactDate,onChange:e=>c("lastContactDate",e.target.value)})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Follow-Ups Sent"),React.createElement("input",{type:"number",min:"0",value:l.followUpCount,onChange:e=>c("followUpCount",parseInt(e.target.value)||0)})),React.createElement("div",{className:"form-section-title"},"// CONTACT & REFERRAL"),React.createElement("div",{className:"fg"},React.createElement("label",null,"Key Contact"),React.createElement("input",{value:l.keyContact,onChange:e=>c("keyContact",e.target.value),placeholder:"Full name"})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Contact Role"),React.createElement("select",{value:l.contactRole,onChange:e=>c("contactRole",e.target.value)},CONTACT_ROLES.map(e=>React.createElement("option",{key:e},e)))),React.createElement("div",{className:"fg full"},React.createElement("label",null,"Referral"),React.createElement("div",{style:{display:"flex",gap:10,alignItems:"center"}},React.createElement("input",{type:"checkbox",checked:l.hasReferral,onChange:e=>c("hasReferral",e.target.checked)}),React.createElement("span",{style:{fontSize:12,color:"var(--muted)"}},"Referred by:"),React.createElement("input",{value:l.referralName,onChange:e=>c("referralName",e.target.value),placeholder:"Name of referral",style:{flex:1}}))),React.createElement("div",{className:"form-section-title"},"// SCORING & RISK"),React.createElement(r,{label:"Strategic Value",field:"strategicValue"}),React.createElement(r,{label:"Comp Potential",field:"compensationPotential"}),React.createElement(r,{label:"Cultural Alignment",field:"culturalAlignment"}),React.createElement("div",{className:"fg"},React.createElement("label",null,"Leverage"),React.createElement("select",{value:l.leverage,onChange:e=>c("leverage",e.target.value)},LEVERAGE_OPTS.map(e=>React.createElement("option",{key:e},e)))),React.createElement("div",{className:"fg"},React.createElement("label",null,"Risk Level"),React.createElement("select",{value:l.riskLevel,onChange:e=>c("riskLevel",e.target.value)},RISK_OPTS.map(e=>React.createElement("option",{key:e},e)))),React.createElement("div",{className:"fg full",style:{display:"flex",flexDirection:"row",gap:24,paddingTop:4}},React.createElement("label",{className:"check-row"},React.createElement("input",{type:"checkbox",checked:l.negotiationPrepReady,onChange:e=>c("negotiationPrepReady",e.target.checked)}),"Negotiation Prep Ready"),React.createElement("label",{className:"check-row"},React.createElement("input",{type:"checkbox",checked:l.relocationRequired,onChange:e=>c("relocationRequired",e.target.checked)}),"Relocation Required")),React.createElement("div",{className:"fg full"},React.createElement("label",null,"Notes"),React.createElement("textarea",{value:l.notes,onChange:e=>c("notes",e.target.value),placeholder:"Context, next steps, vibes..."}))),React.createElement("div",{style:{display:"flex",gap:10,justifyContent:"flex-end",marginTop:18,paddingTop:14,borderTop:"1px solid var(--border)"}},React.createElement("button",{className:"btn btn-secondary",onClick:a},"Cancel"),React.createElement("button",{className:"btn btn-primary",onClick:()=>{l.company.trim()&&l.role.trim()?t(l):alert("Company and Role are required.")}},e?"💾 Save Changes":"✅ Add Application")))))},Tracker=({apps:e,onEdit:t,onDelete:a})=>{const[l,n]=useState(""),[c,r]=useState("All"),[s,o]=useState("All"),[i,m]=useState("dateApplied"),[d,u]=useState("desc"),R=useMemo(()=>{let t=[...e];return l&&(t=t.filter(e=>`${e.company} ${e.role}`.toLowerCase().includes(l.toLowerCase()))),"All"!==c&&(t=t.filter(e=>e.status===c)),"All"!==s&&(t=t.filter(e=>e.leverage===s)),t.sort((e,t)=>{let a=e[i],l=t[i];return"string"==typeof a&&(a=a.toLowerCase(),l=l.toLowerCase()),a<l?"asc"===d?-1:1:a>l?"asc"===d?1:-1:0}),t},[e,l,c,s,i,d]),p=({col:e,children:t})=>React.createElement("th",{onClick:()=>{i===e?u(e=>"asc"===e?"desc":"asc"):(m(e),u("asc"))}},t," ",i===e?"asc"===d?"↑":"↓":"");return React.createElement("div",null,React.createElement("div",{className:"filter-bar"},React.createElement("input",{placeholder:"⌕  search company or role…",value:l,onChange:e=>n(e.target.value),style:{minWidth:210}}),React.createElement("select",{value:c,onChange:e=>r(e.target.value)},React.createElement("option",null,"All"),STATUS_OPTS.map(e=>React.createElement("option",{key:e},e))),React.createElement("select",{value:s,onChange:e=>o(e.target.value)},React.createElement("option",null,"All"),LEVERAGE_OPTS.map(e=>React.createElement("option",{key:e},e))),React.createElement("span",{style:{marginLeft:"auto",fontSize:11,color:"var(--muted)",fontFamily:"JetBrains Mono,monospace"}},R.length,"/",e.length," apps")),React.createElement("div",{className:"card"},React.createElement("div",{className:"tbl-wrap"},React.createElement("table",null,React.createElement("thead",null,React.createElement("tr",null,React.createElement(p,{col:"company"},"Company"),React.createElement(p,{col:"role"},"Role"),React.createElement("th",null,"Location"),React.createElement("th",null,"Salary"),React.createElement(p,{col:"dateApplied"},"Applied"),React.createElement("th",null,"Ref"),React.createElement(p,{col:"status"},"Status"),React.createElement(p,{col:"lastContactDate"},"Last Contact"),React.createElement("th",null,"Silent"),React.createElement("th",null,"⚡ FU?"),React.createElement("th",null,"S/C/A"),React.createElement("th",null,"Leverage"),React.createElement("th",null,"Risk"),React.createElement("th",null,"Neg."),React.createElement("th",null,"Actions"))),React.createElement("tbody",null,0===R.length?React.createElement("tr",null,React.createElement("td",{colSpan:"15"},React.createElement("div",{className:"empty"},0===e.length?"No applications yet — hit ＋ New Application to start tracking.":"No applications match your filters."))):R.map(e=>{const l=dBetween(e.lastContactDate),n=dBetween(e.dateApplied),c=ACTIVE.includes(e.status)&&l>7,r=l>14?"silent-urgent":l>7?"silent-warn":"silent-ok";return React.createElement("tr",{key:e.id},React.createElement("td",null,React.createElement("div",{className:"co-name"},e.company),e.hasReferral&&React.createElement("div",{className:"ref-tag"},"👤 ",e.referralName||"Referred")),React.createElement("td",null,React.createElement("div",{style:{fontSize:11.5,color:"var(--muted)",lineHeight:1.3}},e.role)),React.createElement("td",null,React.createElement("div",{style:{fontSize:11}},e.locationType),e.city&&React.createElement("div",{style:{fontSize:10,color:"var(--muted)"}},e.city)),React.createElement("td",null,React.createElement("span",{className:"mono",style:{fontSize:11.5}},fSal(e.salaryMin,e.salaryMax))),React.createElement("td",null,React.createElement("div",{className:"mono",style:{fontSize:11}},fDate(e.dateApplied)),React.createElement("div",{style:{fontSize:10,color:"var(--muted)"}},n,"d ago")),React.createElement("td",{style:{textAlign:"center"}},e.hasReferral?"✅":React.createElement("span",{className:"text-muted"},"—")),React.createElement("td",null,React.createElement(SBadge,{status:e.status})),React.createElement("td",null,React.createElement("span",{className:"mono",style:{fontSize:11}},fDate(e.lastContactDate))),React.createElement("td",null,React.createElement("span",{className:`mono fw6 ${r}`},l,"d")),React.createElement("td",null,c?React.createElement("span",{className:"badge b-fu"},"⚡ FOLLOW UP"):React.createElement("span",{className:"text-muted",style:{fontSize:11}},"—")),React.createElement("td",null,React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:2}},React.createElement(Dots,{v:e.strategicValue}),React.createElement(Dots,{v:e.compensationPotential}),React.createElement(Dots,{v:e.culturalAlignment}))),React.createElement("td",null,React.createElement("span",{className:"badge "+(o=e.leverage,"High"===o?"b-green":"Medium"===o?"b-yellow":"b-gray")},e.leverage)),React.createElement("td",null,React.createElement("span",{className:"badge "+(s=e.riskLevel,"Stable Role"===s?"b-green":"Layoff Risk"===s?"b-orange":"b-red"),style:{fontSize:"9px"}},e.riskLevel)),React.createElement("td",{style:{textAlign:"center"}},e.negotiationPrepReady?"✅":React.createElement("span",{className:"text-muted"},"—")),React.createElement("td",null,React.createElement("div",{style:{display:"flex",gap:4}},React.createElement("button",{className:"btn btn-secondary btn-xs",onClick:()=>t(e)},"✏️"),React.createElement("button",{className:"btn btn-danger btn-xs",onClick:()=>a(e.id)},"✕"))));var s,o}))))))},TMPL={Applied:e=>`Subject: Following Up — ${e.role} Application\n\nHi ${e.keyContact||"there"},\n\nI applied for the ${e.role} position on ${fDate(e.dateApplied)} and wanted to quickly follow up to reiterate my interest. I'm genuinely excited about the direction of ${e.company} and believe my background in business/data analytics aligns strongly with this role.\n\nHappy to share anything that would help move things forward. Thanks for your time.\n\nBest,\nDeli`,"Recruiter Screen":e=>`Subject: Re: ${e.role} at ${e.company} — Following Up\n\nHi ${e.keyContact||"there"},\n\nReally enjoyed our conversation — the more I think about the team's roadmap, the more excited I am about this opportunity. Wanted to check in on next steps and your expected timeline.\n\nI can move quickly on my end. Let me know what you need.\n\nBest,\nDeli`,"Interview 1":e=>`Subject: Thank You + Next Steps — ${e.role} at ${e.company}\n\nHi ${e.keyContact||"there"},\n\nThank you again for the time! Came away even more energized about the role and the team. I'd love to understand the timeline for next steps — happy to move fast on my end.\n\nLooking forward to continuing the conversation.\n\nBest,\nDeli`,"Interview 2":e=>`Subject: ${e.role} – Checking In Post-Interview\n\nHi ${e.keyContact||"there"},\n\nI wanted to follow up and reiterate how excited I am about this opportunity at ${e.company}. Could you share an expected timeline for a decision? I have a competing situation developing and want to prioritize this one if possible.\n\nThanks so much.\n\nBest,\nDeli`,"Final Round":e=>`Subject: ${e.role} – Offer Timeline\n\nHi ${e.keyContact||"there"},\n\nFollowing up after our final-round conversation. I remain very interested in joining ${e.company} and would appreciate any clarity on the decision timeline. Happy to provide references or additional context.\n\nBest,\nDeli`},getTmpl=e=>(TMPL[e.status]||TMPL.Applied)(e),FollowUp=({apps:e})=>{const[t,a]=useState({}),l=e.filter(e=>ACTIVE.includes(e.status)&&dBetween(e.lastContactDate)>7).sort((e,t)=>dBetween(t.lastContactDate)-dBetween(e.lastContactDate)),n=l.filter(e=>dBetween(e.lastContactDate)>14),c=l.filter(e=>dBetween(e.lastContactDate)<=14),r=({a:e,cls:l})=>React.createElement("div",{className:`fu-card ${l}`},React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}},React.createElement("div",null,React.createElement("div",{style:{fontWeight:700,fontSize:13}},e.company),React.createElement("div",{style:{fontSize:11.5,color:"var(--muted)"}},e.role)),React.createElement("div",{style:{textAlign:"right"}},React.createElement("div",{className:"mono",style:{fontSize:12,fontWeight:700,color:"urgent"===l?"var(--pink)":"var(--yellow)"}},dBetween(e.lastContactDate),"d"),React.createElement("div",{style:{fontSize:10,color:"var(--muted)"}},"FU sent: ",e.followUpCount,"×"))),React.createElement("div",{style:{display:"flex",gap:7,alignItems:"center",flexWrap:"wrap"}},React.createElement(SBadge,{status:e.status}),e.keyContact&&React.createElement("span",{style:{fontSize:10.5,color:"var(--muted)"}},"→ ",e.keyContact),React.createElement("button",{className:"btn btn-secondary btn-xs",onClick:()=>{return t=e.id,a(e=>({...e,[t]:!e[t]}));var t},style:{marginLeft:"auto"}},t[e.id]?"▲ Hide":"📝 Template")),t[e.id]&&React.createElement("div",{className:"tmpl-block"},getTmpl(e)));return React.createElement("div",null,React.createElement("div",{className:"two-col"},React.createElement("div",null,React.createElement("div",{className:"section-label",style:{color:"var(--pink)"}},"🔴 URGENT — OVER 14 DAYS (",n.length,")"),0===n.length?React.createElement("p",{style:{fontSize:12.5,color:"var(--muted)",fontStyle:"italic"}},"All clear. Stay on it."):n.map(e=>React.createElement(r,{key:e.id,a:e,cls:"urgent"})),React.createElement("div",{className:"section-label",style:{color:"var(--yellow)",marginTop:20}},"🟡 WARM — 7 TO 14 DAYS (",c.length,")"),0===c.length?React.createElement("p",{style:{fontSize:12.5,color:"var(--muted)",fontStyle:"italic"}},"Nothing pending."):c.map(e=>React.createElement(r,{key:e.id,a:e,cls:"warm"}))),React.createElement("div",null,React.createElement("div",{className:"section-label"},"📋 TEMPLATE LIBRARY"),Object.entries(TMPL).map(([e,t])=>{const a=t({company:"[Company]",role:"[Role]",keyContact:"[Name]",dateApplied:"—"});return React.createElement("div",{key:e,style:{marginBottom:13}},React.createElement("div",{style:{fontSize:11,fontWeight:700,color:"var(--green)",marginBottom:5,fontFamily:"JetBrains Mono,monospace"}},"// ",e.toUpperCase()),React.createElement("div",{className:"tmpl-block",style:{maxHeight:80,overflow:"hidden"}},a.slice(0,160),"…"))}),React.createElement("div",{style:{marginTop:14,padding:13,background:"var(--bg2)",borderRadius:9,border:"1px solid var(--border)",fontSize:11.5,color:"var(--muted)",lineHeight:1.7}},React.createElement("span",{style:{color:"var(--text)",fontWeight:700}},"Rules:"),React.createElement("br",null),"• Post-application → follow up after 7–10 business days",React.createElement("br",null),"• Post-screen → follow up in 5 days",React.createElement("br",null),"• Post-interview → same-day thank you, follow up in 5–7 days",React.createElement("br",null),"• Final-round silence → follow up after 5 business days",React.createElement("br",null),"• Max 2–3 attempts per opportunity"))))},OfferReadiness=({apps:e})=>{const[t,a]=useState({target:"",walkaway:"",competing:"",startFlex:"",reloCost:"",plan:!1,leverage:"",notes:""}),l=(e,t)=>a(a=>({...a,[e]:t})),n=e.filter(e=>["Final Round","Offer"].includes(e.status)),c=t.target&&t.walkaway?parseInt(t.target)-parseInt(t.walkaway):null;return React.createElement("div",null,n.length>0&&React.createElement("div",{className:"alert-banner alert-green"},React.createElement("span",{style:{fontSize:18}},"🔵"),React.createElement("div",null,React.createElement("strong",null,n.length," offer-stage opportunit",n.length>1?"ies":"y"," active:")," ",n.map(e=>`${e.company} (${e.status})`).join(" · "))),React.createElement("div",{className:"card"},React.createElement("div",{className:"card-hdr"},React.createElement("h2",null,"💰 NEGOTIATION READINESS")),React.createElement("div",{className:"card-body"},React.createElement("div",{className:"form-grid"},React.createElement("div",{className:"form-section-title"},"// COMPENSATION"),React.createElement("div",{className:"fg"},React.createElement("label",null,"Target Salary ($)"),React.createElement("input",{type:"number",value:t.target,onChange:e=>l("target",e.target.value),placeholder:"165000"})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Walk-Away ($)"),React.createElement("input",{type:"number",value:t.walkaway,onChange:e=>l("walkaway",e.target.value),placeholder:"130000"})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Competing Offers"),React.createElement("input",{value:t.competing,onChange:e=>l("competing",e.target.value),placeholder:"e.g. 2 in play"})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Start Date Flex"),React.createElement("input",{value:t.startFlex,onChange:e=>l("startFlex",e.target.value),placeholder:"e.g. 4+ weeks"})),React.createElement("div",{className:"fg"},React.createElement("label",null,"Relocation Cost Est. ($)"),React.createElement("input",{type:"number",value:t.reloCost,onChange:e=>l("reloCost",e.target.value),placeholder:"8000"})),React.createElement("div",{className:"fg",style:{justifyContent:"flex-end"}},React.createElement("label",null," "),React.createElement("label",{className:"check-row",style:{paddingTop:6}},React.createElement("input",{type:"checkbox",checked:t.plan,onChange:e=>l("plan",e.target.checked)}),"30-60-90 Plan Prepared")),React.createElement("div",{className:"form-section-title"},"// LEVERAGE & NOTES"),React.createElement("div",{className:"fg full"},React.createElement("label",null,"Leverage Factors"),React.createElement("textarea",{value:t.leverage,onChange:e=>l("leverage",e.target.value),placeholder:"Competing offers, specialized skills, market data, referral network, current vesting cliff…"})),React.createElement("div",{className:"fg full"},React.createElement("label",null,"Notes"),React.createElement("textarea",{value:t.notes,onChange:e=>l("notes",e.target.value),placeholder:"Deadlines, equity details, signing bonus targets, remote flexibility asks…"}))),t.target&&t.walkaway&&React.createElement("div",{className:"offer-summary"},React.createElement("div",{className:"offer-num"},React.createElement("div",{className:"offer-lbl"},"TARGET"),React.createElement("div",{className:"offer-val",style:{color:"var(--green)",textShadow:"var(--green-glow)"}},"$",parseInt(t.target).toLocaleString())),React.createElement("div",{className:"offer-num"},React.createElement("div",{className:"offer-lbl"},"WALK-AWAY"),React.createElement("div",{className:"offer-val",style:{color:"var(--pink)",textShadow:"var(--pink-glow)"}},"$",parseInt(t.walkaway).toLocaleString())),null!==c&&React.createElement("div",{className:"offer-num"},React.createElement("div",{className:"offer-lbl"},"BAND"),React.createElement("div",{className:"offer-val",style:{color:"var(--cyan)",textShadow:"var(--cyan-glow)"}},"$",c.toLocaleString())),t.competing&&React.createElement("div",{className:"offer-num"},React.createElement("div",{className:"offer-lbl"},"COMPETING"),React.createElement("div",{className:"offer-val",style:{color:"var(--yellow)",fontSize:16}},t.competing)),React.createElement("div",{className:"offer-num"},React.createElement("div",{className:"offer-lbl"},"30-60-90"),React.createElement("div",{className:"offer-val",style:{fontSize:18}},t.plan?"✅ Ready":"⏳ Pending"))),React.createElement("div",{style:{marginTop:14,padding:13,background:"var(--bg2)",borderRadius:9,border:"1px solid var(--border)",fontSize:12,lineHeight:1.7,color:"var(--muted)"}},React.createElement("span",{style:{color:"var(--text)",fontWeight:700}},"Negotiation principles:"),React.createElement("br",null),"• Never give the first number — let them anchor",React.createElement("br",null),'• Always negotiate — even a "final" offer is rarely final',React.createElement("br",null),"• Use competing offers as leverage, never as ultimatums",React.createElement("br",null),"• Ask 10–15% above target to land on target",React.createElement("br",null),"• Non-salary levers: signing bonus, equity refresh, extra PTO, remote days, start date"))))},Insights=({apps:e})=>{const t=useMemo(()=>{const t=e.length,a=e.filter(e=>INTERVIEW.includes(e.status)),l=t?Math.round(a.length/t*100):0,n=e.filter(e=>e.hasReferral),c=e.filter(e=>!e.hasReferral),r=n.filter(e=>INTERVIEW.includes(e.status)).length,s=c.filter(e=>INTERVIEW.includes(e.status)).length,o=n.length?Math.round(r/n.length*100):0,i=c.length?Math.round(s/c.length*100):0,m={};LOC_OPTS.forEach(t=>{const a=e.filter(e=>e.locationType===t),l=a.filter(e=>["Recruiter Screen",...INTERVIEW].includes(e.status));m[t]={total:a.length,resp:l.length,rate:a.length?Math.round(l.length/a.length*100):0}});const d=e.filter(e=>e.strategicValue>=4),u=d.length?Math.round(d.filter(e=>INTERVIEW.includes(e.status)).length/d.length*100):0,R=e.filter(e=>"Rejected"===e.status),p=R.length?Math.round(R.reduce((e,t)=>e+dBetween(t.dateApplied,new Date(t.lastContactDate)),0)/R.length):null,E=e.filter(e=>ACTIVE.includes(e.status)&&dBetween(e.lastContactDate)>14).length,g=t?Math.round(d.length/t*100):0;return{total:t,conv:l,ref:n,cold:c,rRate:o,cRate:i,byLoc:m,highSV:d,highRate:u,avgRej:p,stalled:E,highPct:g}},[e]),a=useMemo(()=>{const e=[];return t.rRate>t.cRate+15&&e.push({icon:"🎯",q:"Where should I double down?",a:`Referrals are your biggest multiplier. Your referral interview rate (${t.rRate}%) crushes cold applications (${t.cRate}%). Before applying anywhere cold, ask: do I know anyone here?`}),t.stalled>2&&e.push({icon:"⚡",q:"Which applications are wasting energy?",a:`${t.stalled} applications have been silent 14+ days. Send one final follow-up or mentally close them. Your energy is better spent on active conversations.`}),t.highPct<50?e.push({icon:"🔍",q:"Am I applying too broadly?",a:`Only ${t.highPct}% of your applications have Strategic Value ≥4. You're spreading thin. Cut the low-fit roles and go deeper on fewer, higher-leverage targets.`}):e.push({icon:"✅",q:"Am I applying strategically?",a:`${t.highPct}% of your applications have high strategic value. Quality over quantity is working — maintain this discipline as the pipeline grows.`}),t.conv<25&&e.push({icon:"📊",q:"Is my conversion rate healthy?",a:`Your App → Interview rate is ${t.conv}%. Strategic applicants typically hit 25–40%. Tighten resume tailoring and increase referral volume to move this number.`}),null!==t.avgRej&&t.avgRej<10&&e.push({icon:"⚠️",q:"Am I getting early-stage rejections?",a:`Average rejection arrives after ${t.avgRej} days — likely at the resume/ATS stage, not interviews. Focus on keyword alignment and role-specific tailoring.`}),e},[t]);return React.createElement("div",null,React.createElement("div",{className:"two-col",style:{marginBottom:14}},React.createElement("div",{className:"card"},React.createElement("div",{className:"card-hdr"},React.createElement("h2",null,"👤 REFERRAL VS COLD")),React.createElement("div",{className:"card-body"},React.createElement("div",{className:"insight-row"},React.createElement("span",{style:{fontSize:12.5}},"Referral applications"),React.createElement("div",{style:{display:"flex",gap:8,alignItems:"center"}},React.createElement("span",{className:"mono fw6"},t.ref.length),React.createElement("span",{className:"badge b-green"},t.rRate,"% → interview"))),React.createElement("div",{className:"insight-row"},React.createElement("span",{style:{fontSize:12.5}},"Cold applications"),React.createElement("div",{style:{display:"flex",gap:8,alignItems:"center"}},React.createElement("span",{className:"mono fw6"},t.cold.length),React.createElement("span",{className:"badge b-gray"},t.cRate,"% → interview"))),React.createElement("div",{className:"insight-row"},React.createElement("span",{style:{fontSize:12.5}},"Overall conv. rate"),React.createElement("span",{className:"badge b-blue mono"},t.conv,"%")),React.createElement("div",{className:"insight-row"},React.createElement("span",{style:{fontSize:12.5}},"High-value (≥4) conv."),React.createElement("span",{className:"mono fw6"},t.highRate,"%")),null!==t.avgRej&&React.createElement("div",{className:"insight-row"},React.createElement("span",{style:{fontSize:12.5}},"Avg days to rejection"),React.createElement("span",{className:"mono fw6",style:{color:"var(--pink)"}},t.avgRej,"d")))),React.createElement("div",{className:"card"},React.createElement("div",{className:"card-hdr"},React.createElement("h2",null,"📍 RESPONSE RATE BY LOCATION")),React.createElement("div",{className:"card-body"},LOC_OPTS.map(e=>{const{total:a,resp:l,rate:n}=t.byLoc[e];return a?React.createElement("div",{key:e,className:"insight-row"},React.createElement("span",{style:{fontSize:12.5}},e),React.createElement("div",{style:{display:"flex",gap:10,alignItems:"center"}},React.createElement("span",{style:{fontSize:11,color:"var(--muted)"}},a," apps, ",l," resp."),React.createElement("div",{className:"prog-bar",style:{width:70}},React.createElement("div",{className:"prog-fill",style:{width:`${n}%`,background:"var(--green)",boxShadow:"var(--green-glow2)"}})),React.createElement("span",{className:"mono fw6",style:{fontSize:12,minWidth:28}},n,"%"))):null})))),React.createElement("div",{className:"card"},React.createElement("div",{className:"card-hdr"},React.createElement("h2",null,"🧠 STRATEGIC RECOMMENDATIONS")),React.createElement("div",{className:"card-body"},0===a.length?React.createElement("p",{className:"text-muted text-sm"},"Add more applications to generate insights."):a.map((e,t)=>React.createElement("div",{key:t,className:"rec-card"},React.createElement("div",{className:"rec-q"},e.icon," ",e.q),React.createElement("div",{className:"rec-a"},e.a))))))},Sec=({title:e,icon:t,children:a,open:l=!0})=>{const[n,c]=useState(l);return React.createElement("div",{className:"card"},React.createElement("div",{className:"card-hdr clickable",onClick:()=>c(e=>!e)},React.createElement("h2",null,t," ",e),React.createElement("span",{className:"chev "+(n?"open":"")},"▾")),n&&React.createElement("div",{className:"card-body"},a))},App=()=>{const[e,t]=useState(SEED),[a,l]=useState("dashboard"),[n,c]=useState(null),r=e.filter(e=>ACTIVE.includes(e.status)&&dBetween(e.lastContactDate)>7).length;return React.createElement("div",null,React.createElement("div",{className:"hdr",style:{position:"relative"}},React.createElement("div",{className:"wrap"},React.createElement("div",{className:"hdr-inner"},React.createElement("div",null,React.createElement("div",{className:"logo"},"deli",React.createElement("span",null,"."),"jobs"),React.createElement("div",{className:"greeting"},"// ",React.createElement("em",null,"Business & Data Analytics")," · ",0===e.length?"ready to track":`${e.length} application${1===e.length?"":"s"} tracked`)),React.createElement("div",{className:"nav"},[{key:"dashboard",label:"Dashboard"},{key:"tracker",label:"Tracker"},{key:"followup",label:"Follow-Up"},{key:"offer",label:"Offer Readiness"},{key:"insights",label:"Insights"}].map(e=>React.createElement("button",{key:e.key,className:"nav-btn "+(a===e.key?"active":""),onClick:()=>l(e.key)},e.label,"followup"===e.key&&r>0&&React.createElement("span",{className:"fu-badge"},r)))),React.createElement("button",{className:"btn btn-primary btn-sm",onClick:()=>c("new")},"＋ New Application")))),React.createElement("div",{className:"main"},React.createElement("div",{className:"wrap"},"dashboard"===a&&React.createElement(Dashboard,{apps:e}),"tracker"===a&&React.createElement(Tracker,{apps:e,onEdit:e=>c(e),onDelete:e=>{window.confirm("Remove this application?")&&t(t=>t.filter(t=>t.id!==e))}}),"followup"===a&&React.createElement(Sec,{title:"FOLLOW-UP AUTOMATION",icon:"📬"},React.createElement(FollowUp,{apps:e})),"offer"===a&&React.createElement(OfferReadiness,{apps:e}),"insights"===a&&React.createElement(Insights,{apps:e}))),n&&React.createElement(AppModal,{app:"new"===n?null:n,onSave:"new"===n?e=>{t(t=>[...t,{...e,id:Date.now()}]),c(null)}:e=>{t(t=>t.map(t=>t.id===e.id?e:t)),c(null)},onClose:()=>c(null)}))};ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App,null));
+</script>
+</body>
+</html>
